@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Palme School — Домашние задания</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Serif+Display:ital@0;1&display=swap');
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', system-ui, sans-serif;
+    background: #FAFAF8;
+    color: #1a1a1a;
+    min-height: 100vh;
+  }
+
+  .wrap {
+    max-width: 540px;
+    margin: 0 auto;
+    padding: 0 16px 40px;
+  }
+
+  .header {
+    text-align: center;
+    padding: 2rem 1rem 1.2rem;
+    border-bottom: 1px solid #E8E6E0;
+    margin-bottom: 1.5rem;
+  }
+
+  .logo {
+    font-family: 'DM Serif Display', serif;
+    font-size: 32px;
+    color: #F59E0B;
+    letter-spacing: -0.5px;
+  }
+
+  .course-tag {
+    display: inline-block;
+    font-size: 11px;
+    color: #888;
+    border: 1px solid #E0DDD6;
+    border-radius: 20px;
+    padding: 3px 12px;
+    margin-top: 6px;
+    letter-spacing: 0.04em;
+  }
+
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  .section-label {
+    font-size: 10px;
+    font-weight: 500;
+    color: #999;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 12px;
+  }
+
+  .teacher-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
+    gap: 8px;
+    margin-bottom: 1.5rem;
+    max-height: 340px;
+    overflow-y: auto;
+    padding-right: 4px;
+  }
+
+  .teacher-grid::-webkit-scrollbar { width: 4px; }
+  .teacher-grid::-webkit-scrollbar-track { background: #F0EDE8; border-radius: 2px; }
+  .teacher-grid::-webkit-scrollbar-thumb { background: #D4CFC6; border-radius: 2px; }
+
+  .t-btn {
+    background: #fff;
+    border: 1px solid #E8E4DC;
+    border-radius: 10px;
+    padding: 10px 12px;
+    cursor: pointer;
+    text-align: left;
+    transition: border-color 0.15s, background 0.15s;
+    font-family: inherit;
+  }
+
+  .t-btn:hover { border-color: #F59E0B; }
+  .t-btn.sel { border-color: #F59E0B; background: #FFFBF0; }
+  .t-btn .tname { font-size: 12.5px; font-weight: 500; color: #1a1a1a; line-height: 1.4; }
+
+  .lesson-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 1.5rem; }
+
+  .l-btn {
+    background: #fff;
+    border: 1px solid #E8E4DC;
+    border-radius: 10px;
+    padding: 10px 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: inherit;
+    transition: border-color 0.15s;
+  }
+
+  .l-btn:hover { border-color: #F59E0B; }
+
+  .l-num {
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    background: #FEF3C7;
+    color: #92400E;
+    font-size: 10px;
+    font-weight: 500;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .l-text { font-size: 13px; color: #1a1a1a; text-align: left; }
+
+  .task-card {
+    background: #fff;
+    border: 1px solid #E8E4DC;
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    transition: border-color 0.15s;
+  }
+
+  .task-card.sel { border-color: #F59E0B; background: #FFFDF5; }
+
+  .task-head { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .stars { font-size: 13px; color: #F59E0B; }
+  .diff { font-size: 10px; color: #999; font-weight: 500; letter-spacing: 0.05em; }
+  .task-text { font-size: 13px; color: #333; line-height: 1.65; margin-bottom: 10px; }
+
+  .pick-btn {
+    font-size: 11px;
+    border: 1px solid #F59E0B;
+    border-radius: 20px;
+    padding: 4px 12px;
+    cursor: pointer;
+    color: #92400E;
+    background: transparent;
+    font-family: inherit;
+    transition: background 0.15s, color 0.15s;
+  }
+
+  .task-card.sel .pick-btn { background: #F59E0B; color: #fff; border-color: #F59E0B; }
+
+  .field-label { font-size: 11px; color: #888; margin-bottom: 4px; margin-top: 14px; }
+
+  input[type=text], input[type=password], textarea, select {
+    width: 100%;
+    border: 1px solid #E0DDD6;
+    border-radius: 10px;
+    padding: 10px 13px;
+    font-size: 13px;
+    font-family: inherit;
+    color: #1a1a1a;
+    background: #fff;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  input:focus, textarea:focus, select:focus { border-color: #F59E0B; }
+
+  textarea { resize: vertical; min-height: 140px; line-height: 1.7; }
+
+  .btn-main {
+    width: 100%;
+    background: #1a1a1a;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 12px 20px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    margin-top: 14px;
+    font-family: inherit;
+    transition: background 0.15s;
+  }
+
+  .btn-main:hover { background: #333; }
+  .btn-main:disabled { background: #ccc; cursor: not-allowed; }
+
+  .btn-back {
+    background: transparent;
+    border: 1px solid #E0DDD6;
+    border-radius: 8px;
+    padding: 7px 14px;
+    font-size: 12px;
+    cursor: pointer;
+    color: #888;
+    margin-bottom: 1.2rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-family: inherit;
+  }
+
+  .btn-back:hover { border-color: #999; color: #555; }
+
+  .breadcrumb {
+    font-size: 11px;
+    color: #999;
+    margin-bottom: 1rem;
+    line-height: 1.5;
+  }
+
+  .breadcrumb strong { color: #1a1a1a; font-weight: 500; }
+
+  .success-box {
+    text-align: center;
+    padding: 3rem 1rem 2rem;
+  }
+
+  .success-icon { font-size: 52px; margin-bottom: 1rem; }
+  .success-title { font-family: 'DM Serif Display', serif; font-size: 24px; color: #1a1a1a; margin-bottom: 8px; }
+  .success-sub { font-size: 13px; color: #888; line-height: 1.7; }
+
+  .teacher-link {
+    text-align: center;
+    margin-top: 1.5rem;
+    padding-top: 1.2rem;
+    border-top: 1px solid #E8E4DC;
+  }
+
+  .teacher-link a {
+    font-size: 12px;
+    color: #999;
+    cursor: pointer;
+    text-decoration: none;
+    transition: color 0.15s;
+  }
+
+  .teacher-link a:hover { color: #555; }
+
+  .err-msg { font-size: 11px; color: #E24B4A; margin-top: 5px; display: none; }
+
+  .resp-card {
+    background: #fff;
+    border: 1px solid #E8E4DC;
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin-bottom: 8px;
+    border-left: 3px solid #F59E0B;
+  }
+
+  .r-meta { font-size: 11px; color: #999; margin-bottom: 5px; }
+  .r-task { font-size: 12px; font-weight: 500; color: #1a1a1a; margin-bottom: 6px; }
+  .r-text { font-size: 13px; color: #333; line-height: 1.65; white-space: pre-wrap; }
+
+  .empty { text-align: center; padding: 2.5rem; font-size: 13px; color: #bbb; }
+  .resp-count { font-size: 12px; color: #999; margin-bottom: 12px; }
+
+  .hint { font-size: 11px; color: #bbb; margin-top: 5px; }
+
+  @media (max-width: 400px) {
+    .teacher-grid { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="header">
+    <div class="logo">Palme School</div>
+    <div class="course-tag">Teenager Advanced 2</div>
+  </div>
+
+  <!-- ВЫБОР УЧИТЕЛЯ -->
+  <div id="s-teacher" class="screen active">
+    <div class="section-label">Выбери своего преподавателя</div>
+    <div class="teacher-grid" id="teacher-grid"></div>
+    <button class="btn-main" id="btn-next" disabled>Далее →</button>
+    <div class="teacher-link">
+      <a onclick="showLogin()">Я преподаватель — войти</a>
+    </div>
+  </div>
+
+  <!-- ВЫБОР УРОКА -->
+  <div id="s-lessons" class="screen">
+    <button class="btn-back" onclick="go('s-teacher')">← Назад</button>
+    <div class="breadcrumb">Преподаватель: <strong id="bc-t"></strong></div>
+    <div class="section-label">Выбери урок</div>
+    <div class="lesson-list" id="lesson-list"></div>
+  </div>
+
+  <!-- ЗАДАНИЯ -->
+  <div id="s-tasks" class="screen">
+    <button class="btn-back" onclick="go('s-lessons')">← Назад</button>
+    <div class="breadcrumb" id="bc-l"></div>
+    <div class="section-label">Выбери одно задание по силам</div>
+    <div id="tasks-box"></div>
+    <div class="field-label">Твоё имя</div>
+    <input type="text" id="stu-name" placeholder="Например: Аня Иванова">
+    <div class="field-label">Твой ответ</div>
+    <textarea id="stu-answer" placeholder="Напиши ответ здесь..."></textarea>
+    <button class="btn-main" id="btn-submit" onclick="submitAnswer()">Отправить</button>
+  </div>
+
+  <!-- УСПЕХ -->
+  <div id="s-success" class="screen">
+    <div class="success-box">
+      <div class="success-icon">✦</div>
+      <div class="success-title">Ответ отправлен!</div>
+      <div class="success-sub">Преподаватель увидит твою работу.<br>Отличная работа!</div>
+      <button class="btn-main" style="margin-top:2rem" onclick="reset()">Выполнить другое задание</button>
+    </div>
+  </div>
+
+  <!-- ЛОГИН ПРЕПОДАВАТЕЛЯ -->
+  <div id="s-login" class="screen">
+    <button class="btn-back" onclick="go('s-teacher')">← Назад</button>
+    <div class="section-label">Вход для преподавателя</div>
+    <div class="field-label">Ваша фамилия</div>
+    <select id="login-sel"></select>
+    <div class="field-label">Пароль</div>
+    <input type="password" id="login-code" placeholder="Введите пароль">
+    <div class="err-msg" id="login-err">Неверный пароль. Попробуйте ещё раз.</div>
+    <button class="btn-main" onclick="doLogin()">Войти</button>
+  </div>
+
+  <!-- ПРОСМОТР ОТВЕТОВ -->
+  <div id="s-view" class="screen">
+    <button class="btn-back" onclick="go('s-teacher')">← Выйти</button>
+    <div class="section-label" id="tv-title"></div>
+    <div class="field-label">Фильтр по уроку</div>
+    <select id="filter-sel" onchange="renderResp()"></select>
+    <div class="resp-count" id="resp-count" style="margin-top:12px"></div>
+    <div id="resp-box"></div>
+  </div>
+
+</div>
+<script>
+const PASSWORD = '1234';
+
+const TEACHERS = [
+  {name:'Анастасия Погребных',last:'Погребных'},
+  {name:'Елена Петровская',last:'Петровская'},
+  {name:'Елена Кудрявцева',last:'Кудрявцева'},
+  {name:'Оксана Лаевская',last:'Лаевская'},
+  {name:'Нина Дикович',last:'Дикович'},
+  {name:'Анна Маджит',last:'Маджит'},
+  {name:'Дарья Беломестнова',last:'Беломестнова'},
+  {name:'Алина Воскобойникова',last:'Воскобойникова'},
+  {name:'Влада Кондратьева',last:'Кондратьева'},
+  {name:'Диляра Решитова',last:'Решитова'},
+  {name:'Юлия Лопаткова',last:'Лопаткова'},
+  {name:'Дмитрий Гридчин',last:'Гридчин'},
+  {name:'Ангелина Павлова',last:'Павлова'},
+  {name:'Анастасия Демидович',last:'Демидович'},
+  {name:'Елизавета Саваренкова',last:'Саваренкова'},
+  {name:'Анна Елдесоуки',last:'Елдесоуки'},
+  {name:'Наталья Сафронова',last:'Сафронова'},
+  {name:'Надежда Ломтева',last:'Ломтева'},
+  {name:'Юлия Новоселова',last:'Новоселова'},
+  {name:'Мария Оганнисян',last:'Оганнисян'},
+  {name:'Анастасия Яблокова',last:'Яблокова'},
+  {name:'Бактыгуль Абдушева',last:'Абдушева'},
+  {name:'Алина Пескова',last:'Пескова'},
+  {name:'Анастасия Фролова',last:'Фролова'},
+  {name:'Азамат Игибаев',last:'Игибаев'},
+  {name:'Александра Еремина',last:'Еремина'},
+  {name:'Рейяна Решитова',last:'Решитова (Р.)'},
+  {name:'Зарина Сальмурзаева',last:'Сальмурзаева'},
+  {name:'Елизавета Сердюкова',last:'Сердюкова'},
+  {name:'Ольга Павлова',last:'Павлова (О.)'},
+  {name:'Ольга Доронина',last:'Доронина'},
+  {name:'Залина Батчаева',last:'Батчаева'},
+  {name:'Анастасия Захарова',last:'Захарова'},
+  {name:'Кира Баринова',last:'Баринова'},
+  {name:'Полина Иванова',last:'Иванова'},
+  {name:'Петр Спиридонов',last:'Спиридонов'},
+  {name:'Мария Сопина',last:'Сопина'},
+  {name:'Софья Ратушная',last:'Ратушная'},
+];
+
+const LESSONS = [
+  {id:1,title:'Александр Грин «Алые паруса»',tasks:[
+    {s:'★',d:'ЛЕГКО',t:'Письмо Грину — напиши письмо Александру Грину. Что хочешь сказать? За что поблагодарить? (5–7 предложений)'},
+    {s:'★★',d:'СРЕДНЕ',t:'Свои алые паруса — опиши свою мечту. Во что веришь, даже если смеются? Как будешь её ждать? (8–10 предложений)'},
+    {s:'★★★',d:'СЛОЖНО',t:'Придумай свою Гринландию — опиши страну: название, города, люди, море. (10–12 предложений)'},
+  ]},
+  {id:2,title:'Арсеньев «Дерсу Узала»',tasks:[
+    {s:'★',d:'ЛЕГКО',t:'Дневник Арсеньева — напиши 5–7 предложений от его лица о первой встрече с Дерсу.'},
+    {s:'★★',d:'СРЕДНЕ',t:'Два мира — напиши диалог между Арсеньевым и Дерсу у костра (10–12 реплик).'},
+    {s:'★★★',d:'СЛОЖНО',t:'Сравни двух героев — как они смотрят на природу? Кто тебе ближе? (12–15 предложений)'},
+  ]},
+  {id:3,title:'Тургенев «Бежин луг»',tasks:[
+    {s:'★',d:'ЛЕГКО',t:'Портрет мальчика — выбери одного героя и опиши его характер, внешность и поступки. (5–7 предложений)'},
+    {s:'★★',d:'СРЕДНЕ',t:'Пятая страшилка — придумай новую страшную историю в стиле Тургенева. (8–10 предложений)'},
+    {s:'★★★',d:'СЛОЖНО',t:'Тургенев и Гоголь — сравни страшные истории в двух произведениях. (12–15 предложений)'},
+  ]},
+  {id:4,title:'Борис Житков',tasks:[
+    {s:'★',d:'ЛЕГКО',t:'Интервью с Житковым — придумай 4–5 вопросов и напиши ответы от его имени.'},
+    {s:'★★',d:'СРЕДНЕ',t:'Мой кораблик — напиши рассказ про свой заветный предмет из детства. (8–10 предложений)'},
+    {s:'★★★',d:'СЛОЖНО',t:'Жизнь как роман — напиши статью для детского журнала о Житкове. (12–15 предложений)'},
+  ]},
+  {id:5,title:'Зощенко «Галоша»',tasks:[
+    {s:'★',d:'ЛЕГКО',t:'Маршрут героя — опиши путь галоши: трамвай → бюро находок → управдом → районный отдел.'},
+    {s:'★★',d:'СРЕДНЕ',t:'История галоши — расскажи от её лица: что видела, чувствовала, думала. (8–10 предложений)'},
+    {s:'★★★',d:'СЛОЖНО',t:'Интервью с Зощенко — 5–6 вопросов о творчестве и ответы от его имени.'},
+  ]},
+  {id:6,title:'Пушкин «Гробовщик»',tasks:[
+    {s:'★',d:'ЛЕГКО',t:'Смешной момент — опиши самый страшный или смешной момент повести. (4–5 предложений)'},
+    {s:'★★',d:'СРЕДНЕ',t:'Пушкин и Гоголь — сравни «Гробовщика» с «Заколдованным местом». (8–10 предложений)'},
+    {s:'★★★',d:'СЛОЖНО',t:'Интервью с Адрианом — 5 вопросов после кошмара и ответы от его лица.'},
+  ]},
+  {id:7,title:'Носов «Живая шляпа»',tasks:[
+    {s:'★',d:'ЛЕГКО',t:'Комикс — нарисуй или опиши комикс из 4–6 картинок по рассказу.'},
+    {s:'★★',d:'СРЕДНЕ',t:'Продолжение — что случилось вечером, когда пришли родители? (7–10 предложений)'},
+    {s:'★★★',d:'СЛОЖНО',t:'Глазами Васьки — перескажи рассказ от лица котёнка. (10–12 предложений)'},
+  ]},
+  {id:8,title:'Гоголь «Заколдованное место»',tasks:[
+    {s:'★',d:'ЛЕГКО',t:'Дневник деда — напиши один день из его дневника. (5–7 предложений)'},
+    {s:'★★',d:'СРЕДНЕ',t:'Допрос нечистой силы — диалог деда с чёртом с юмором. (8–10 реплик)'},
+    {s:'★★★',d:'СЛОЖНО',t:'Современная версия — перенеси историю в наше время. (10–12 предложений)'},
+  ]},
+  {id:9,title:'Паустовский «Корзина с шишками»',tasks:[
+    {s:'★',d:'ЛЕГКО',t:'Письмо Григу — напиши от имени Дагни после концерта. (5–7 предложений)'},
+    {s:'★★',d:'СРЕДНЕ',t:'Мой подарок — расскажи об обещании, которое ты дал или получил. (8–10 предложений)'},
+    {s:'★★★',d:'СЛОЖНО',t:'Сравни писателей: Конюхов, Житков, Арсеньев, Грин, Паустовский. (12–15 предложений)'},
+  ]},
+  {id:10,title:'Носов «Мишкина каша»',tasks:[
+    {s:'★',d:'ЛЕГКО',t:'Комикс — нарисуй или опиши комикс из 6 картинок с репликами героев.'},
+    {s:'★★',d:'СРЕДНЕ',t:'Инструкция «Как правильно варить кашу» с использованием слов из словаря. (6–8 пунктов)'},
+    {s:'★★★',d:'СЛОЖНО',t:'Своя история — двое детей готовят другое блюдо. Что случилось? (10–12 предложений)'},
+  ]},
+  {id:11,title:'Драгунский «Он живой и светится»',tasks:[
+    {s:'★',d:'ЛЕГКО',t:'Светлячок — напиши 3–5 предложений о том, что ты чувствуешь, глядя на него.'},
+    {s:'★★',d:'СРЕДНЕ',t:'Продолжение — что случилось на следующее утро? (7–10 предложений)'},
+    {s:'★★★',d:'СЛОЖНО',t:'Свой обмен — что ты отдал ради чего-то важнее? Стоило ли? (10–12 предложений)'},
+  ]},
+  {id:12,title:'Чехов «Страшная ночь»',tasks:[
+    {s:'★',d:'ЛЕГКО',t:'Моя страшная ночь — опиши что казалось страшным и что было на самом деле.'},
+    {s:'★★',d:'СРЕДНЕ',t:'Страх и смелость — рассказ или диалог о победе над страхом. (5–10 предложений)'},
+    {s:'★★★',d:'СЛОЖНО',t:'Приём Чехова — как он делает страшное смешным? Примеры из текста. (10–12 предложений)'},
+  ]},
+  {id:13,title:'Конюхов «На полюс»',tasks:[
+    {s:'★',d:'ЛЕГКО',t:'Моя мечта — напиши, кем хочешь стать или чего достичь. (3–5 предложений)'},
+    {s:'★★',d:'СРЕДНЕ',t:'Моя трудность — какой предмет нужен для мечты и почему? (5–7 предложений)'},
+    {s:'★★★',d:'СЛОЖНО',t:'Мини-план — план на неделю по преодолению трудности. (6–8 пунктов)'},
+  ]},
+];
+
+let st = {teacher:null,lesson:null,task:null,ct:null};
+
+function go(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');window.scrollTo(0,0);}
+
+function saveLocal(r){try{let a=JSON.parse(localStorage.getItem('palme_hw')||'[]');a.push(r);localStorage.setItem('palme_hw',JSON.stringify(a));}catch(e){}}
+function loadLocal(n){try{return JSON.parse(localStorage.getItem('palme_hw')||'[]').filter(r=>r.teacher===n);}catch(e){return[];}}
+
+function renderTeachers(){
+  const g=document.getElementById('teacher-grid');
+  TEACHERS.forEach(t=>{
+    const b=document.createElement('button');
+    b.className='t-btn';
+    b.innerHTML='<div class="tname">'+t.name+'</div>';
+    b.onclick=()=>{document.querySelectorAll('.t-btn').forEach(x=>x.classList.remove('sel'));b.classList.add('sel');st.teacher=t;document.getElementById('btn-next').disabled=false;};
+    g.appendChild(b);
+  });
+  document.getElementById('btn-next').onclick=()=>{document.getElementById('bc-t').textContent=st.teacher.name;renderLessons();go('s-lessons');};
+}
+
+function renderLessons(){
+  const l=document.getElementById('lesson-list');
+  l.innerHTML='';
+  LESSONS.forEach((ls,i)=>{
+    const d=document.createElement('div');
+    d.className='l-btn';
+    d.innerHTML='<div class="l-num">'+(i+1)+'</div><div class="l-text">'+ls.title+'</div>';
+    d.onclick=()=>{st.lesson=ls;st.task=null;document.getElementById('bc-l').innerHTML='<strong>'+st.teacher.name+'</strong> · '+ls.title;renderTasks();go('s-tasks');};
+    l.appendChild(d);
+  });
+}
+
+function renderTasks(){
+  const b=document.getElementById('tasks-box');
+  b.innerHTML='';
+  st.lesson.tasks.forEach((t,i)=>{
+    const c=document.createElement('div');
+    c.className='task-card';
+    c.innerHTML='<div class="task-head"><span class="stars">'+t.s+'</span><span class="diff">'+t.d+'</span></div><div class="task-text">'+t.t+'</div><button class="pick-btn" onclick="pickTask('+i+',this)">Выбрать это задание</button>';
+    b.appendChild(c);
+  });
+  document.getElementById('stu-name').value='';
+  document.getElementById('stu-answer').value='';
+  document.getElementById('btn-submit').disabled=false;
+}
+
+function pickTask(i,btn){document.querySelectorAll('.task-card').forEach(c=>c.classList.remove('sel'));btn.closest('.task-card').classList.add('sel');st.task=st.lesson.tasks[i];}
+
+function submitAnswer(){
+  const name=document.getElementById('stu-name').value.trim();
+  const ans=document.getElementById('stu-answer').value.trim();
+  if(!name){document.getElementById('stu-name').focus();return;}
+  if(!st.task){alert('Выбери задание!');return;}
+  if(!ans){document.getElementById('stu-answer').focus();return;}
+  saveLocal({teacher:st.teacher.name,lesson:st.lesson.title,task:st.task.s+' '+st.task.d,taskText:st.task.t,student:name,answer:ans,date:new Date().toLocaleDateString('ru-RU'),time:new Date().toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'}),ts:Date.now()});
+  document.getElementById('btn-submit').disabled=true;
+  go('s-success');
+}
+
+function reset(){st={teacher:null,lesson:null,task:null,ct:null};document.querySelectorAll('.t-btn').forEach(b=>b.classList.remove('sel'));document.getElementById('btn-next').disabled=true;go('s-teacher');}
+
+function showLogin(){
+  document.getElementById('login-sel').innerHTML=TEACHERS.map(t=>'<option value="'+t.name+'">'+t.last+'</option>').join('');
+  document.getElementById('login-code').value='';
+  document.getElementById('login-err').style.display='none';
+  go('s-login');
+}
+
+function doLogin(){
+  const code=document.getElementById('login-code').value.trim();
+  const selName=document.getElementById('login-sel').value;
+  const err=document.getElementById('login-err');
+  if(code!==PASSWORD){err.style.display='block';return;}
+  err.style.display='none';
+  st.ct=TEACHERS.find(t=>t.name===selName);
+  document.getElementById('tv-title').textContent=st.ct.name+' — ответы учеников';
+  document.getElementById('filter-sel').innerHTML='<option value="">Все уроки</option>'+LESSONS.map(l=>'<option value="'+l.title+'">'+l.title+'</option>').join('');
+  renderResp();
+  go('s-view');
+}
+
+function renderResp(){
+  const filter=document.getElementById('filter-sel').value;
+  const box=document.getElementById('resp-box');
+  const mine=loadLocal(st.ct.name).filter(r=>!filter||r.lesson===filter);
+  document.getElementById('resp-count').textContent='Ответов: '+mine.length;
+  if(!mine.length){box.innerHTML='<div class="empty">Ответов пока нет</div>';return;}
+  box.innerHTML=mine.slice().reverse().map(r=>'<div class="resp-card"><div class="r-meta">'+r.student+' · '+r.date+' '+r.time+'</div><div class="r-task">'+r.lesson+' · '+r.task+'</div><div class="r-text">'+r.answer+'</div></div>').join('');
+}
+
+renderTeachers();
+</script>
+</body>
+</html>
