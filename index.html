@@ -336,6 +336,8 @@
 </div>
 <script>
 const PASSWORD = '1234';
+const SUPA_URL = 'https://eprargaykeeeydfbfvyn.supabase.co';
+const SUPA_KEY = 'sb_publishable_DrJznmHFT9_IfFpButkv5g_6Jh6xxak';
 
 const TEACHERS = [
   {name:'Анастасия Погребных',last:'Погребных'},
@@ -493,14 +495,19 @@ function renderTasks(){
 
 function pickTask(i,btn){document.querySelectorAll('.task-card').forEach(c=>c.classList.remove('sel'));btn.closest('.task-card').classList.add('sel');st.task=st.lesson.tasks[i];}
 
-function submitAnswer(){
+async function submitAnswer(){
   const name=document.getElementById('stu-name').value.trim();
   const ans=document.getElementById('stu-answer').value.trim();
   if(!name){document.getElementById('stu-name').focus();return;}
   if(!st.task){alert('Выбери задание!');return;}
   if(!ans){document.getElementById('stu-answer').focus();return;}
-  saveLocal({teacher:st.teacher.name,lesson:st.lesson.title,task:st.task.s+' '+st.task.d,taskText:st.task.t,student:name,answer:ans,date:new Date().toLocaleDateString('ru-RU'),time:new Date().toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'}),ts:Date.now()});
-  document.getElementById('btn-submit').disabled=true;
+  const btn=document.getElementById('btn-submit');
+  btn.disabled=true; btn.textContent='Отправляем...';
+  const record={teacher:st.teacher.name,lesson:st.lesson.title,task:st.task.s+' '+st.task.d,task_text:st.task.t,student:name,answer:ans};
+  try{
+    const res=await fetch(SUPA_URL+'/rest/v1/answers',{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Prefer':'return=minimal'},body:JSON.stringify(record)});
+    if(!res.ok) throw new Error('err');
+  }catch(e){ saveLocal({...record,date:new Date().toLocaleDateString('ru-RU'),time:new Date().toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'}),ts:Date.now()}); }
   go('s-success');
 }
 
@@ -526,13 +533,26 @@ function doLogin(){
   go('s-view');
 }
 
-function renderResp(){
+async function renderResp(){
   const filter=document.getElementById('filter-sel').value;
   const box=document.getElementById('resp-box');
-  const mine=loadLocal(st.ct.name).filter(r=>!filter||r.lesson===filter);
-  document.getElementById('resp-count').textContent='Ответов: '+mine.length;
-  if(!mine.length){box.innerHTML='<div class="empty">Ответов пока нет</div>';return;}
-  box.innerHTML=mine.slice().reverse().map(r=>'<div class="resp-card"><div class="r-meta">'+r.student+' · '+r.date+' '+r.time+'</div><div class="r-task">'+r.lesson+' · '+r.task+'</div><div class="r-text">'+r.answer+'</div></div>').join('');
+  const count=document.getElementById('resp-count');
+  box.innerHTML='<div class="empty">Загружаем...</div>';
+  count.textContent='';
+  try{
+    let url=SUPA_URL+'/rest/v1/answers?teacher=eq.'+encodeURIComponent(st.ct.name)+'&order=created_at.desc&limit=200';
+    if(filter) url+='&lesson=eq.'+encodeURIComponent(filter);
+    const res=await fetch(url,{headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY}});
+    const data=await res.json();
+    count.textContent='Ответов: '+data.length;
+    if(!data.length){box.innerHTML='<div class="empty">Ответов пока нет</div>';return;}
+    box.innerHTML=data.map(r=>'<div class="resp-card"><div class="r-meta">'+r.student+' · '+new Date(r.created_at).toLocaleDateString('ru-RU')+' '+new Date(r.created_at).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'})+'</div><div class="r-task">'+r.lesson+' · '+r.task+'</div><div class="r-text">'+r.answer+'</div></div>').join('');
+  }catch(e){
+    const mine=loadLocal(st.ct.name).filter(r=>!filter||r.lesson===filter);
+    count.textContent='Ответов: '+mine.length+' (локально)';
+    if(!mine.length){box.innerHTML='<div class="empty">Ответов пока нет</div>';return;}
+    box.innerHTML=mine.slice().reverse().map(r=>'<div class="resp-card"><div class="r-meta">'+r.student+' · '+r.date+' '+r.time+'</div><div class="r-task">'+r.lesson+' · '+r.task+'</div><div class="r-text">'+r.answer+'</div></div>').join('');
+  }
 }
 
 renderTeachers();
